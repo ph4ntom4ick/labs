@@ -1,4 +1,4 @@
-# lab4pp
+# labspp
 ## yak to klepalos:
   1. use version  ```python 3.8```
   2. create virtualenv ```python -m virtualenv venv```
