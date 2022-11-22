@@ -7,17 +7,39 @@ from models import User, Car
 from schemas.user import UserCreation
 import random
 
-from flask import jsonify, request, abort
+from flask import jsonify, abort
 from marshmallow import ValidationError
 import sqlalchemy.exc as sql_exception
+from flask_jwt_extended import JWTManager
 
+
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user
+# from flask_jwt_extended import user_identity_loader
+# from flask_jwt_extended import user_lookup_loader
 API_KEY = 'MY_API_KEY'
 
 
 app = Blueprint('Saturn', __name__)
 # app = Flask(__name__)
 
+
+
+jwt = None
+
+
 session = DBManager().session()
+
+# @jwt.user_identity_loader
+# def user_identity_lookup(user):
+#     return user.id
+
+# @jwt.user_lookup_loader
+# def user_lookup_callback(_jwt_header, jwt_data):
+#     identity = jwt_data["sub"]
+#     return session.query(User).filter_by(id=identity).one_or_none()
 
 @app.route('/user', methods=['POST'])
 def user()->Response:
@@ -52,13 +74,15 @@ def login_user():
 
     username = request.args.get("username")
     password = request.args.get("password")
+    # print(username,password)
 
-    user: User = session.query(User).filter(username == User.username).first()
+    user: User = session.query(User).filter_by(username = username).first()
     if user and check_password_hash(user.password, password):
-        return make_response(user.as_dict(), 200)
+        access_token = create_access_token(identity=username)
+        return jsonify(access_token=access_token)
     else:
         response = {
-            "code": 400,
+            "code": 401,
             "message": "Wrong credentials"
         }
         return make_response(response, 400)
@@ -75,9 +99,11 @@ def logout_user():
 
 
 @app.route("/user/<user_id>", methods=["GET"])
+@jwt_required()
 def get_user(user_id) -> Response:
-
-
+    
+    if current_user==user_id:
+        return jsonify(message= "acces forbidden "),403
     user_record: User = session.query(User).filter(user_id == User.id).first()
 
     if not user_record:
@@ -93,8 +119,11 @@ def get_user(user_id) -> Response:
 
 
 @app.route("/user/<user_id>", methods=["PUT"])
+@jwt_required()
 def update_user(user_id) -> Response:
 
+    if current_user==user_id:
+        return jsonify(message= "acces forbidden "),403
     request_json = request.get_json()
     user_record = session.query(User).filter(user_id == User.id).first()
     if not user_record:
@@ -128,8 +157,11 @@ def update_user(user_id) -> Response:
     return respose
 
 @app.route("/user/<user_id>", methods=["DELETE"])
+@jwt_required()
 def delete_user(user_id) -> Response:
 
+    if current_user==user_id:
+        return jsonify(message= "acces forbidden "),403
     api_key_header = request.headers.get('api_key')
     if False:
         response = {
@@ -145,6 +177,11 @@ def delete_user(user_id) -> Response:
     return respose
 
 
+
+
+def get_blueprint(current_app):
+    jwt = JWTManager(current_app)
+    return app
 
 # if __name__ == '__main__':
 #     app.run(port=5001)

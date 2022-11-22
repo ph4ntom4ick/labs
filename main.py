@@ -4,16 +4,17 @@ from manager import DBManager
 import datetime
 
 
-from api.user import app as usrbl
+from api.user import get_blueprint as usrbl
 from api.car import app as carbl
 from api.reservation import app as rsvbl
 
 
 app= Flask(__name__)
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 
-app.register_blueprint(usrbl,url_prefix= "/user")
 app.register_blueprint(carbl,url_prefix= "/car")
 app.register_blueprint(rsvbl,url_prefix= "/reservation")
+app.register_blueprint(usrbl(app),url_prefix= "/user")
 
 
 
