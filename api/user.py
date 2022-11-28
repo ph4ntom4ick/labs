@@ -2,9 +2,9 @@ from flask import Blueprint, Flask, request, Response, make_response
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from manager import *
-from models import User, Car
-from schemas.user import UserCreation
+from labs.manager import *
+from labs.models import User, Car
+from labs.schemas.user import UserCreation
 import random
 
 from flask import jsonify, abort
@@ -64,7 +64,6 @@ def user()->Response:
             "message": f"Server crashed with the following error: {str(e)}"
         }
         return make_response(response, 400)
-
     respose = make_response({"userId": user_record.id}, 200)
     return respose
 
@@ -118,63 +117,63 @@ def get_user(user_id) -> Response:
 
 
 
-@app.route("/user/<user_id>", methods=["PUT"])
-@jwt_required()
-def update_user(user_id) -> Response:
+# @app.route("/user/<user_id>", methods=["PUT"])
+# @jwt_required()
+# def update_user(user_id) -> Response:
 
-    if current_user==user_id:
-        return jsonify(message= "acces forbidden "),403
-    request_json = request.get_json()
-    user_record = session.query(User).filter(user_id == User.id).first()
-    if not user_record:
-        response = {
-            "code": 400,
-            "message": "There is no such user"
-        }
-        return make_response(response, 400)
+#     if current_user==user_id:
+#         return jsonify(message= "acces forbidden "),403
+#     request_json = request.get_json()
+#     user_record = session.query(User).filter(user_id == User.id).first()
+#     if not user_record:
+#         response = {
+#             "code": 400,
+#             "message": "There is no such user"
+#         }
+#         return make_response(response, 400)
 
-    try:
-        # validate request input
-        user = UserCreation().load(request_json)
-        password_hash = generate_password_hash(user.get('password'))
-        user_record={
-            "name": user.get('firstName'),
-            "surname": user.get('lastName'),
-            "password": password_hash,
-        }
-        # create database record
-        session.query(User).filter(user_id == User.id).update(user_record)
-        session.commit()
+#     try:
+#         # validate request input
+#         user = UserCreation().load(request_json)
+#         password_hash = generate_password_hash(user.get('password'))
+#         user_record={
+#             "name": user.get('firstName'),
+#             "surname": user.get('lastName'),
+#             "password": password_hash,
+#         }
+#         # create database record
+#         session.query(User).filter(user_id == User.id).update(user_record)
+#         session.commit()
 
-    except (ValidationError, sql_exception.IntegrityError) as e:
-        response = {
-            "code": 400,
-            "message": f"Server crashed with the following error: {str(e)}"
-        }
-        return make_response(response, 400)
+#     except (ValidationError, sql_exception.IntegrityError) as e:
+#         response = {
+#             "code": 400,
+#             "message": f"Server crashed with the following error: {str(e)}"
+#         }
+#         return make_response(response, 400)
 
-    respose = make_response({"userId": user_id}, 200)
-    return respose
+#     respose = make_response({"userId": user_id}, 200)
+#     return respose
 
-@app.route("/user/<user_id>", methods=["DELETE"])
-@jwt_required()
-def delete_user(user_id) -> Response:
+# @app.route("/user/<user_id>", methods=["DELETE"])
+# @jwt_required()
+# def delete_user(user_id) -> Response:
 
-    if current_user==user_id:
-        return jsonify(message= "acces forbidden "),403
-    api_key_header = request.headers.get('api_key')
-    if False:
-        response = {
-            "code": 400,
-            "message": "Not allowed. Provide a valid api_key header"
-        }
-        return make_response(response, 400)
+#     if current_user==user_id:
+#         return jsonify(message= "acces forbidden "),403
+#     api_key_header = request.headers.get('api_key')
+#     if False:
+#         response = {
+#             "code": 400,
+#             "message": "Not allowed. Provide a valid api_key header"
+#         }
+#         return make_response(response, 400)
 
-    session.query(User).filter(user_id == User.id).delete()
-    session.commit()
+#     session.query(User).filter(user_id == User.id).delete()
+#     session.commit()
 
-    respose = make_response({"userId": user_id}, 200)
-    return respose
+#     respose = make_response({"userId": user_id}, 200)
+#     return respose
 
 
 

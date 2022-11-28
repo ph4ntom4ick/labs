@@ -1,10 +1,9 @@
 from flask import Blueprint,Flask, request, Response, make_response
 from marshmallow.exceptions import ValidationError
-from models import Car
-from schemas.car import CarCreation, CarInfo
-from default_responses import *
-from manager import DBManager
-from models import Car
+from labs.schemas.car import CarCreation, CarInfo
+from labs.default_responses import *
+from labs.manager import DBManager
+from labs.models import Car
 import random
 import sqlalchemy.exc as sql_exception
 
@@ -49,7 +48,7 @@ def update_car(car_id) -> Response:
     car_record = session.query(Car).filter(car_id == Car.id).first()
     if not car_record:
         response = {
-            "code": 400,
+            "code": 404,
             "message": "There is no such id in database"
         }
         return make_response(response, 400)

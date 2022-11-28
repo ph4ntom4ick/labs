@@ -2,9 +2,9 @@ from flask import Blueprint, Flask, request, Response, make_response
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from manager import *
-from models import Reservation
-from schemas.reservation import ReservationCreation, ReservationInfo
+from labs.manager import *
+from labs.models import Reservation
+from labs.schemas.reservation import ReservationCreation, ReservationInfo
 import random
 
 from flask import jsonify, request, abort

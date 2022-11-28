@@ -1,12 +1,12 @@
 from flask import Flask
 # from models import *
-from manager import DBManager
+from labs.manager import DBManager
 import datetime
 
 
-from api.user import get_blueprint as usrbl
-from api.car import app as carbl
-from api.reservation import app as rsvbl
+from labs.api.user import get_blueprint as usrbl
+from labs.api.car import app as carbl
+from labs.api.reservation import app as rsvbl
 
 
 app= Flask(__name__)
